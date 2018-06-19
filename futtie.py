@@ -212,13 +212,13 @@ def buyAndSell(playerName, player, rareP, icon):
 		futpriceS = iconPrice
 		playerName = "Icon"
 		if coins < futpriceS:
-			print('\r not enough coins')
+			print(CRED + '\r not enough coins for Rare' + CEND)
 			return
 	if icon == 2:
 		futpriceS = rarePrice
 		playerName = "Rare"
 		if coins < futpriceS:
-			print('\r not enough coins')
+			print(CRED + '\r not enough coins for Rare' + CEND)
 			return
 	result = search_player(player, futpriceS, maxP, rareP, icon)
 	printResult(playerName, result, rareP, maxP, futpriceS)
@@ -442,7 +442,7 @@ def mmogaPrice():
 					print('\r Sent to Club')
 				searchMmoga.cofirmMMOGA()
 				gewinn = gewinn - 7000
-				print(CYELLOW +' MMOGA-sell perfect')
+				print(CYELLOW +' MMOGA-sell perfect'+ CEND)
 			else:
 				print(kaufMmogaCard)
 			del searchMmoga
