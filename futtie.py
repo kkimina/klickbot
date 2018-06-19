@@ -12,7 +12,9 @@ import requests
 
 CRED = '\r\033[91m'
 CYELLOW = '\r\033[33m'
+CGREEN = '\r\033[92m'
 CEND = '\033[0m'
+
 
 gewinn = 0
 coins  = 0
@@ -398,7 +400,7 @@ def getGewinnAndCoins():
 	coins = session.keepalive()
 	f_in.write(str(gewinn))
 	#print('\r\x1b[6;30;42m' + '_______________Coins:' + str(coins) + '_______________Gewinn:' + str(gewinn) + '_______________'+ '\x1b[0m')
-	print(CRED + '_______________Coins:' + str(coins) + '_______________Gewinn:' + str(gewinn) + '_______________'+ CEND)
+	print(CGREEN + '_______________Coins:' + str(coins) + '_______________Gewinn:' + str(gewinn) + '_______________'+ CEND)
 	f_in.close()
 
 def getGewinnFromFile():
