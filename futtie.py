@@ -158,25 +158,12 @@ def calcVerkaufsPreis(preis):
 
 def makeSleep():
 	randomNumber = random.randint(5,14)
-	print(str(randomNumber), end='', flush=True)
+	#print(str(randomNumber), end='', flush=True)
 	for s in range(randomNumber, 0, -1):
 		mmogaPrice()
 		time.sleep(1)	
 		print ("\r Loading... ".format(s)+str(s), end="")	
-	print ("\r                   ".format(s)+str(s), end="")	
-	
-def search_reus_benzema():
-	#result = search_player('50519998', '4098000')
-	#print(str(result['tradeIdMin']) + ' ' + str(result['priceMin']))
-	#print(str(result['tradeIdMin2']) + ' ' + str(result['priceMin2']))
-	#time.sleep(5)
-	result = search_player('67274017', '4098000')
-	print(str(result['tradeIdMin']) + ' ' + str(result['priceMin']))
-	print(str(result['tradeIdMin2']) + ' ' + str(result['priceMin2']))
-	result = search_player('50496801', '4098000')
-	print(str(result['tradeIdMin']) + ' ' + str(result['priceMin']))
-	print(str(result['tradeIdMin2']) + ' ' + str(result['priceMin2']))
-	#maskedDefId=37576
+	print ("\r                   ".format(s)+str(s), end="")
 
 def printResult(playerName, result, rareP, maxP, printResults):
 	versions = '(' + rareP + ')'
@@ -185,7 +172,7 @@ def printResult(playerName, result, rareP, maxP, printResults):
 	if result['length'] < 36 and result['priceMin2'] < 100000000000:
 		if 'function' in str(printResults):
 			printResults = 'XXXX'
-		print('\r Suche: ' + playerName + versions + ' fuer ' + str(printResults) + '/' + str(maxP) + ' prices: ' + str(result['priceMin2']) + '/' + str(abrunden(abrunden(calcVerkaufsPreis(result['priceMin2'])))) + '/' + str(result['priceMin']) + ' ' + str(result['length']))	
+		print('\r Suche: ' + playerName + versions + ' fuer ' + str(printResults) + '/' + str(maxP) + ' prices: ' + str(result['priceMin2']) + '/' + str(abrunden(abrunden(calcVerkaufsPreis(result['priceMin2'])))) + '/' + str(result['priceMin']) + ' ' + str(result['length']) + '     ')	
 	if result['length'] == 36:
 		print('\r Suche: ' + playerName + versions + ' fuer ' + str(printResults) + '/' + str(maxP) + ' prices: ' + str(result['priceMin2']) + '/' + str(abrunden(abrunden(calcVerkaufsPreis(result['priceMin2'])))) + '/' + str(result['priceMin']) + ' ' + str(result['length']).format(s)+str(s), end='')
 
@@ -197,7 +184,7 @@ def verkauf(result):
 		global gewinn 
 		gewinn = gewinn + result['priceMin2']*0.95 - result['priceMin']
 		verkauf = session.sell(item_id=result['itemId'], bid=preisDown(result['priceMin2']), buy_now=result['priceMin2'])
-		print('\r  - - - - - - - - - > VERKAUFT für: ' + str(preisDown(result['priceMin2']))+ '/' + str(result['priceMin2']))
+		print('\r  - - - - - - - - - > VERKAUFT für: ' + str(preisDown(result['priceMin2']))+ '/' + str(result['priceMin2'])+ '             ')
 		#print('\r _______________________________________________________________')
 		getGewinnAndCoins()
 		global coins
@@ -214,13 +201,13 @@ def buyAndSell(playerName, player, rareP, icon):
 		futpriceS = iconPrice
 		playerName = "Icon"
 		if coins < futpriceS:
-			print(CRED + '\r not enough coins for Rare' + CEND)
+			print(CRED + '\r not enough coins for Icon                                        ' + CEND)
 			return
 	if icon == 2:
 		futpriceS = rarePrice
 		playerName = "Rare"
 		if coins < futpriceS:
-			print(CRED + '\r not enough coins for Rare' + CEND)
+			print(CRED + '\r not enough coins for Rare                                        ' + CEND)
 			return
 	result = search_player(player, futpriceS, maxP, rareP, icon)
 	printResult(playerName, result, rareP, maxP, futpriceS)
@@ -233,7 +220,7 @@ def buyAndSell(playerName, player, rareP, icon):
 		if result['priceMin2'] < 100000000000 and coins > result['priceMin']:
 			kauf = session.bid(trade_id=result['tradeIdMin'], bid=result['priceMin'], fast=True)
 			if kauf == True:
-				print('\r  - - - - - - - - - >  GEKAUFT für: ' + str(result['priceMin']))
+				print('\r  - - - - - - - - - >  GEKAUFT für: ' + str(result['priceMin'])+ '                                   ')
 				makeSleep()
 				#print(session.tradepileClear())
 				makeSleep()
@@ -243,10 +230,10 @@ def buyAndSell(playerName, player, rareP, icon):
 			if icon > 0:
 				price = futPriceMin(str(result['playerId']))
 				difference = int(price) - int(result['priceMin2'])
-				if difference < 6000:
-					verkauf(result)
-				else:
-					print('\r AAAAAAAAAAAAAAAAAAACHHHHHHHHHHHHHHHHHHHHHHTUNGGGGGGG ' + str(difference))
+				#if difference < 6000:
+				verkauf(result)
+				#else:
+				#	print('\r AAAAAAAAAAAAAAAAAAACHHHHHHHHHHHHHHHHHHHHHHTUNGGGGGGG ' + str(difference))
 			else:
 				verkauf(result)
 
@@ -400,7 +387,7 @@ def getGewinnAndCoins():
 	coins = session.keepalive()
 	f_in.write(str(gewinn))
 	#print('\r\x1b[6;30;42m' + '_______________Coins:' + str(coins) + '_______________Gewinn:' + str(gewinn) + '_______________'+ '\x1b[0m')
-	print(CGREEN + '_______________Coins:' + str(coins) + '_______________Gewinn:' + str(gewinn) + '_______________'+ CEND)
+	print(CGREEN + '_______________Coins:' + str(coins) + '_______________Gewinn:' + str(gewinn) + '_______________                         '+ CEND)
 	f_in.close()
 
 def getGewinnFromFile():
@@ -444,7 +431,7 @@ def mmogaPrice():
 					print('\r Sent to Club')
 				searchMmoga.cofirmMMOGA()
 				gewinn = gewinn - 7000
-				print(CYELLOW +' MMOGA-sell perfect'+ CEND)
+				print(CYELLOW +' MMOGA-sell perfect                                               '+ CEND)
 			else:
 				print(kaufMmogaCard)
 			del searchMmoga
