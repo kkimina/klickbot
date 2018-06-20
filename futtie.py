@@ -1,5 +1,4 @@
 import sys
-sys.path.append('/home/maik/Downloads')
 
 from mmoga import MMOGA
 import fut
@@ -158,12 +157,10 @@ def calcVerkaufsPreis(preis):
 
 def makeSleep():
 	randomNumber = random.randint(5,14)
-	#print(str(randomNumber), end='', flush=True)
-	for s in range(randomNumber, 0, -1):
+	for s in range(randomNumber, -1, -1):
 		mmogaPrice()
 		time.sleep(1)	
-		print ("\r Loading... ".format(s)+str(s), end="")	
-	print ("\r                   ".format(s)+str(s), end="")
+		print ("\r Loading... ".format(s)+str(s) + "                                                        ", end="")
 
 def printResult(playerName, result, rareP, maxP, printResults):
 	versions = '(' + rareP + ')'
@@ -172,7 +169,7 @@ def printResult(playerName, result, rareP, maxP, printResults):
 	if result['length'] < 36 and result['priceMin2'] < 100000000000:
 		if 'function' in str(printResults):
 			printResults = 'XXXX'
-		print('\r Suche: ' + playerName + versions + ' fuer ' + str(printResults) + '/' + str(maxP) + ' prices: ' + str(result['priceMin2']) + '/' + str(abrunden(abrunden(calcVerkaufsPreis(result['priceMin2'])))) + '/' + str(result['priceMin']) + ' ' + str(result['length']) + '     ')	
+		print('\r Suche: ' + playerName + versions + ' fuer ' + str(printResults) + '/' + str(maxP) + ' prices: ' + str(result['priceMin2']) + '/' + str(abrunden(abrunden(calcVerkaufsPreis(result['priceMin2'])))) + '/' + str(result['priceMin']) + ' ' + str(result['length']) + '        ')	
 	if result['length'] == 36:
 		print('\r Suche: ' + playerName + versions + ' fuer ' + str(printResults) + '/' + str(maxP) + ' prices: ' + str(result['priceMin2']) + '/' + str(abrunden(abrunden(calcVerkaufsPreis(result['priceMin2'])))) + '/' + str(result['priceMin']) + ' ' + str(result['length']).format(s)+str(s), end='')
 
@@ -387,7 +384,7 @@ def getGewinnAndCoins():
 	coins = session.keepalive()
 	f_in.write(str(gewinn))
 	#print('\r\x1b[6;30;42m' + '_______________Coins:' + str(coins) + '_______________Gewinn:' + str(gewinn) + '_______________'+ '\x1b[0m')
-	print(CGREEN + '_______________Coins:' + str(coins) + '_______________Gewinn:' + str(gewinn) + '_______________                         '+ CEND)
+	print(CGREEN + '_______________Coins:' + str(coins) + '_______________Gewinn:' + str(gewinn) + '_______________        '+ CEND)
 	f_in.close()
 
 def getGewinnFromFile():
@@ -407,33 +404,34 @@ def mmogaPrice():
 			searchMmoga.makeNextSteps()
 			test = searchMmoga.getPlayerDetails()
 			if test == 0:
+				print(CRED + 'player-Details = 0' + CEND)
 				return
 			## Search mmoga player in transfermarket
 			searchMmogaCard = session.search(ctype = 'player', assetId = str(searchMmoga.playerId), min_buy = 10000, min_price = str(searchMmoga.startBid))
-			#print(str(searchMmoga.playerId))
-			#print(str(searchMmoga.startBid))
+
 			## Get Item-Id
 			item_id = ''
 			for details in searchMmogaCard:
+				#print('tradeId: ' + str(details['tradeId']))
+				#print('details: ' + str(details))
 				trade_id = details['tradeId']
-				if trade_id == searchMmoga.playerId:
-					item_id = p['id']
+				if str(trade_id) == str(searchMmoga.tradeId):
+					item_id = details['id']
+					print(CYELLOW + 'MATCHED                                                 ' + CEND)
 
 			## Bid on mmoga player
-			print(str(searchMmoga.tradeId))
 			kaufMmogaCard = session.bid(trade_id=str(searchMmoga.tradeId), bid=10000, fast=True)
 			
 			# Selling check
 			if kaufMmogaCard == True:
-				#print('ItemID'+str(item_id))
 				if item_id != '':
-					session.sendToClub(searchMmoga.playerId, item_id)
-					print('\r Sent to Club')
+					session.sendToClub(item_id)
+					print(CYELLOW + 'Sent to Club              ' + CEND)
 				searchMmoga.cofirmMMOGA()
 				gewinn = gewinn - 7000
 				print(CYELLOW +' MMOGA-sell perfect                                               '+ CEND)
 			else:
-				print(kaufMmogaCard)
+				print('KaufMMogaCard: ' + kaufMmogaCard)
 			del searchMmoga
 getGewinnFromFile()
 iconPrice = 155000
