@@ -109,25 +109,23 @@ class MMOGA:
 			return
 		self.step5Answer = self.mmogaSession.post(self.url, data=self.step5, headers=self.postheaders)
 		#print(self.step5Answer.text)
-		print('geklappt')
+		print(CYELLOW + 'MMOGA-Confirmation complete   ' + CEND)
 
 	def getPlayerDetails(self):
 		if self.step4Answer == '':
-			print('\r'+'no coins')
-			#self.step5 = 'step=5&id='+str(self.mid)+'&key='+str(self.key)+'&expires='+str(self.expires)+'&futwebExpires='+str(self.futWebExpires)
-			#print(self.step5)
+			print(CRED + 'MMOGA: no coins                  ' + CEND)
 			return
 		if 'Sie haben noch eine andere offene Auktion' in self.step4Answer.text:
-			print('\r'+'auction ongoing')
+			print(CRED + 'MMOGA: auction ongoing           ' + CEND)
 			return 0
 		if 'Leider' in self.step4Answer.text:
-			print('\r'+'to late')
+			print(CRED + 'MMOGA: to late                   ' + CEND)
 			return 0
 		if '<div class="futSellPayL">Player ID:</div>' in self.step4Answer.text:
 			print()
 		else:
 			print(self.step4Answer.text)
-			print('\r'+'keine PlayerID')
+			print(CRED + 'MMOGA: keine PlayerID            ' + CEND)
 			return 0
 		## get player-id
 		print(CYELLOW +' - - - - - - MMOGA VERKAUF - - - - - - '+ CEND)
@@ -179,4 +177,3 @@ class MMOGA:
 		## create comfirm content
 		self.step5 = 'step=5&id='+str(self.mid)+'&key='+str(self.key)+'&expires='+str(self.expires)+'&futwebExpires='+str(self.futWebExpires)
 		#print(self.step5)
-
