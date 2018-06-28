@@ -15,8 +15,10 @@ CGREEN = '\r\033[92m'
 CEND = '\033[0m'
 
 
-gewinn = 0
-coins  = 0
+gewinn		= 0
+coins  	  	= 0
+tradepile 	= 0
+startCoins	= 0
 os.system('clear') 
 session = fut.Core('maikfischer@hotmail.de', 'Autobaum1', 'kaiee', platform='xbox')
 
@@ -183,6 +185,7 @@ def verkauf(result):
 		verkauf = session.sell(item_id=result['itemId'], bid=preisDown(result['priceMin2']), buy_now=result['priceMin2'])
 		print('\r  - - - - - - - - - > VERKAUFT für: ' + str(preisDown(result['priceMin2']))+ '/' + str(result['priceMin2'])+ '             ')
 		#print('\r _______________________________________________________________')
+		deleteTradepile()
 		getGewinnAndCoins()
 		global coins
 		#print('\r  - - - - - - - - - > GEWINN: ' + str(gewinn) + '   Coins:' + str(coins))
@@ -340,6 +343,8 @@ def futPriceMin(id):
 			return value
 
 def deleteTradepile():
+	global tradepile
+	tradepile = 0
 	closed = 0
 	free = 0
 	tings = session.tradepile()
@@ -351,6 +356,8 @@ def deleteTradepile():
 			#print(s['tradeState'])
 		if s['tradeState'] == 'closed' and s['itemState'] == 'invalid':
 			closed = closed + 1
+		else:
+			tradepile = tradepile + float(s['lastSalePrice'])
 		if s['tradeState'] == 'expired' and s['itemState'] == 'free':
 			free = free + 1
 	if closed > 0:
@@ -379,13 +386,20 @@ def searchLoop():
 
 def getGewinnAndCoins():
 	global coins
+	global startCoins
+	global gewinn
 	coins = 0
-	f_in = open("coins.ini","w")
 	coins = session.keepalive()
+	if startCoins == 0:
+		startCoins = float(coins) + tradepile - gewinn
+#	gewinn = float(coins) + tradepile - startCoins
+
+	f_in = open("coins.ini","w")
 	f_in.write(str(gewinn))
-	#print('\r\x1b[6;30;42m' + '_______________Coins:' + str(coins) + '_______________Gewinn:' + str(gewinn) + '_______________'+ '\x1b[0m')
-	print(CGREEN + '_______________Coins:' + str(coins) + '_______________Gewinn:' + str(gewinn) + '_______________        '+ CEND)
 	f_in.close()
+	
+	print(CGREEN + '_______________Coins:' + str(coins) + '('+str(float(coins) + tradepile)+')' + '_______________Gewinn:' + str(gewinn) + '_______________        '+ CEND)
+	
 
 def getGewinnFromFile():
 	f_out = open("coins.ini","r")
@@ -395,7 +409,7 @@ def getGewinnFromFile():
 
 def mmogaPrice():
 	global gewinn
-	if gewinn >7000:
+	if gewinn >11000:
 		searchMmoga = MMOGA()
 		searchMmoga.makeFirstStep()
 		searchMmoga.writeMMOGAcookies()
@@ -428,18 +442,18 @@ def mmogaPrice():
 					session.sendToClub(item_id)
 					print(CYELLOW + 'Sent to Club              ' + CEND)
 				searchMmoga.cofirmMMOGA()
-				gewinn = gewinn - 7000
+				gewinn = gewinn - 11000
 				print(CYELLOW +' MMOGA-sell perfect                                               '+ CEND)
 			else:
-				print('KaufMMogaCard: ' + kaufMmogaCard)
+				print('KaufMMogaCard: ' + str(kaufMmogaCard))
 			del searchMmoga
 getGewinnFromFile()
 iconPrice = 155000
 rarePrice = 10000
 for a in range(0,20):
 	for s in range(0,10):
-		getGewinnAndCoins()
 		deleteTradepile()
+		getGewinnAndCoins()
 		searchLoop()
 	time.sleep(15)	
 if __name__ == '__main__':

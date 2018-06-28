@@ -177,3 +177,4 @@ class MMOGA:
 		## create comfirm content
 		self.step5 = 'step=5&id='+str(self.mid)+'&key='+str(self.key)+'&expires='+str(self.expires)+'&futwebExpires='+str(self.futWebExpires)
 		#print(self.step5)
+
