@@ -19,13 +19,12 @@ CEND = '\033[0m'
 def ablauf():
 	os.system('clear')
 	bot = CORE()
+	bot.init(account = 'maikfischer@hotmail.de', passwort = 'Autobaum1', platform = 'xbox', key = 'kaiee')
 	bot.connect()
 	bot.getGewinnFromFile()
 	bot.getGewinnAndCoins()
 	bot.initGui()
 	bot.refreshGewinn()
-	
-	bot.showGui()
 	bot.refreshCoins()
 
 ablauf()

@@ -43,11 +43,13 @@ class CORE:
 		self.w = Label(self.gui, text='Coins: ' + str(self.coins))
 		self.w.pack()
 
+	def init(self, acount, passwort, platform, key):
+		self.account 	     = account
+		self.passwort        = passwort
+		self.platform        = platform
+		self.sicherheitskey  = key
+
 	def connect(self):
-		self.account 	     = 'maikfischer@hotmail.de'
-		self.passwort        = 'Autobaum1'
-		self.platform        = 'xbox'
-		self.sicherheitskey  = 'kaiee'
 		self.session = fut.Core(self.account, self.passwort, self.sicherheitskey, platform=self.platform)
 
 	def search_player(playerId, maxPrice, maxAuct, rareP, icon):
@@ -58,8 +60,6 @@ class CORE:
 		ronaldo = 0
 		if icon == 1:
 			ronaldo = session.search(ctype = 'player', league = 2118, max_buy = maxPrice, max_price = maxAuct)
-			#print(ronaldo)
-			#print(maxPrice)
 		if icon == 0:
 			ronaldo = session.search(ctype = 'player', assetId = playerId, max_buy = maxPrice, max_price = maxAuct, rare = rareP)
 		if icon == 2:
