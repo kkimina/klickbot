@@ -15,6 +15,7 @@ CGREEN = '\r\033[92m'
 CEND = '\033[0m'
 
 
+sellOnMMOGA	= True
 gewinn		= 0
 coins  	  	= 0
 tradepile 	= 0
@@ -46,11 +47,12 @@ session = fut.Core('maikfischer@hotmail.de', 'Autobaum1', 'kaiee', platform='xbo
 	#current_bid = item['currentBid']
 	#expires = item['expires']  # seconds left
 
-def search_player(playerId, maxPrice, maxAuct, rareP, icon):
+def search_player(playerId, maxPrice, maxAuct, rareP, icon, positionz):
 	if rareP == 'gold':
 		rareP = False
 	else:
 		rareP = True
+	maxAuct = 0
 	ronaldo = 0
 	if icon == 1:
 		ronaldo = session.search(ctype = 'player', league = 2118, max_buy = maxPrice, max_price = maxAuct)
@@ -59,7 +61,7 @@ def search_player(playerId, maxPrice, maxAuct, rareP, icon):
 	if icon == 0:
 		ronaldo = session.search(ctype = 'player', assetId = playerId, max_buy = maxPrice, max_price = maxAuct, rare = rareP)
 	if icon == 2:
-		ronaldo = session.search(ctype = 'player', max_buy = maxPrice, max_price = maxAuct, rare = True)
+		ronaldo = session.search(ctype = 'player', max_buy = maxPrice, max_price = maxAuct, rare = True, position = positionz)
 	minimum = 100000000000
 	minimum2= 100000000000
 	trade_id_min = ""
@@ -160,9 +162,12 @@ def calcVerkaufsPreis(preis):
 def makeSleep():
 	randomNumber = random.randint(5,14)
 	for s in range(randomNumber, -1, -1):
-		mmogaPrice()
+		isMMOGA = mmogaPrice()
 		time.sleep(1)	
-		print ("\r Loading... ".format(s)+str(s) + "                                                        ", end="")
+		if isMMOGA is 'nicht gesucht':
+			print ("\r Loading... ".format(s)+str(s) + "                                                       ", end="")
+		else:
+			print ("\r MMOGA-Verkauf fuer "+ str(isMMOGA) +" Euro... ".format(s)+str(s) +"                                 ", end="")
 
 def printResult(playerName, result, rareP, maxP, printResults):
 	versions = '(' + rareP + ')'
@@ -197,6 +202,7 @@ def buyAndSell(playerName, player, rareP, icon):
 	global coins	
 	maxP = abrunden(random.randint(400000, 1000000))
 	futpriceS = futPrice(player)
+	positionz = None
 	if icon == 1:
 		futpriceS = iconPrice
 		playerName = "Icon"
@@ -205,17 +211,20 @@ def buyAndSell(playerName, player, rareP, icon):
 			return
 	if icon == 2:
 		futpriceS = rarePrice
-		playerName = "Rare"
+		positons = ['RM', 'ST', 'CB', 'GK', 'CM', 'LW', 'RW', 'RB', 'RW', 'CAM', 'CF', 'LM', 'RM', 'RF', 'LF', 'CDM']
+		randomPosition = random.randint(0,len(positons)-1)
+		positionz = positons[randomPosition]
+		playerName = "Rare-" + positionz
 		if coins < futpriceS:
 			print(CRED + '\r not enough coins for Rare                                        ' + CEND)
 			return
-	result = search_player(player, futpriceS, maxP, rareP, icon)
+	result = search_player(player, futpriceS, maxP, rareP, icon, positionz)
 	printResult(playerName, result, rareP, maxP, futpriceS)
 	while result['length'] == 36:
 		makeSleep()
 		if result['priceMin'] == result['priceMin2']:
 			result['priceMin'] = preisDown(result['priceMin'])
-		result = search_player(player, result['priceMin'], maxP, rareP, icon)
+		result = search_player(player, result['priceMin'], 0, rareP, icon, positionz)
 	if abrunden(abrunden(calcVerkaufsPreis(result['priceMin2']))) >= result['priceMin']:
 		if result['priceMin2'] < 100000000000 and coins > result['priceMin']:
 			kauf = session.bid(trade_id=result['tradeIdMin'], bid=result['priceMin'], fast=True)
@@ -228,44 +237,45 @@ def buyAndSell(playerName, player, rareP, icon):
 			makeSleep()
 			price = 0
 			if icon > 0:
-				price = futPriceMin(str(result['playerId']))
-				difference = int(price) - int(result['priceMin2'])
-				#if difference < 6000:
+				#price = futPriceMin(str(result['playerId']))
+				#difference = int(price) - int(result['priceMin2'])
+				#if difference < 500:
 				verkauf(result)
 				#else:
-				#	print('\r AAAAAAAAAAAAAAAAAAACHHHHHHHHHHHHHHHHHHHHHHTUNGGGGGGG ' + str(difference))
+				#print('\r AAAAAAAAAAAAAAAAAAACHHHHHHHHHHHHHHHHHHHHHHTUNGGGGGGG ')
 			else:
 				verkauf(result)
 
 playerDict = {
 #'Matthäus':        {'version': ['gold'],  	'playerId': '238436'},
 #'Hagi': 	    {'version': ['gold'], 	'playerId': '239056'},
-'Schweinsteiger':  {'version': ['gold'],       	'playerId': '121944'},
+#'Schweinsteiger':  {'version': ['gold'],       	'playerId': '121944'},
 'Robben':	   {'version': ['gold'],       	'playerId': '9014'},
 #'Hernandez1':	   {'version': ['gold'],       	'playerId': '156353'},
 #'Hernandez2':	   {'version': ['gold'],       	'playerId': '238421'},
 #'Hernandez3':	   {'version': ['gold'],       	'playerId': '238420'},
 #'Dante':           {'version': ['gold'],       'playerId': '158625'},
 'Yarmolenko':      {'version': ['gold'], 	'playerId': '194794'},
+'Fred':		      {'version': ['gold'], 	'playerId': '209297'},
+'Martial':      {'version': ['gold'], 	'playerId': '211300'},
 #'Donnarumma':      {'version': ['gold'], 	'playerId': '121944'},
 'Coman':           {'version': ['gold'], 	'playerId': '121944'},
 'Bernat':          {'version': ['gold'],       	'playerId': '205069'},
-'Svensson':        {'version': ['gold'],       	'playerId': '121944'},
+#'Svensson':        {'version': ['gold'],       	'playerId': '121944'},
 'Volland':         {'version': ['gold'], 	'playerId': '200610'},
-'Costa':           {'version': ['gold'], 	'playerId': '190483'},
-#'Promes': 	    {'version': ['gold'], 	'playerId': '208808'},
+'Promes': 	    {'version': ['gold'], 	'playerId': '208808'},
 'Costa':  	   {'version': ['gold'], 	'playerId': '190483'},
 'Thorgan Hazard':  {'version': ['gold'], 	'playerId': '203486'},
-'Marcelo':         {'version': ['gold'], 	'playerId': '180334'},
+#'Marcelo':         {'version': ['gold'], 	'playerId': '180334'},
 'Joe Hart':        {'version': ['gold'], 	'playerId': '150724'},
-'Aritz Elustondo': {'version': ['gold'], 	'playerId': '180334'},
-'Marcelo':         {'version': ['gold'], 	'playerId': '180334'},
-'Podolski':        {'version': ['gold'], 	'playerId': '150516'},
+#'Aritz Elustondo': {'version': ['gold'], 	'playerId': '180334'},
+#'Marcelo':         {'version': ['gold'], 	'playerId': '180334'},
+#'Podolski':        {'version': ['gold'], 	'playerId': '150516'},
 'Milinkovic-Savic':{'version': ['gold'], 	'playerId': '223848'},
 'Koulibaly':       {'version': ['gold'], 	'playerId': '201024'},
 'Marco Reus':	   {'version': ['gold'], 	'playerId': '188350'},
 'Marc Bartra':     {'version': ['gold'], 	'playerId': '198141'},
-#'Subotic':	   {'version': ['gold'], 	'playerId': '183556'},
+##'Subotic':	   {'version': ['gold'], 	'playerId': '183556'},
 'Sokratis':        {'version': ['gold'], 	'playerId': '172879'},
 'Philipp':	   {'version': ['gold'], 	'playerId': '216497'},
 'Pulisic':         {'version': ['gold'], 	'playerId': '227796'},
@@ -273,14 +283,14 @@ playerDict = {
 'Piszcek':         {'version': ['gold'],       	'playerId': '173771'},
 'Buerki':          {'version': ['gold'], 	'playerId': '189117'},
 'Schmelzer':       {'version': ['gold'],       	'playerId': '188802'},
-'Aubame':          {'version': ['gold'],  	'playerId': '188567'},
+#'Aubame':          {'version': ['gold'],  	'playerId': '188567'},
 'Batsman':         {'version': ['gold'],       	'playerId': '204529'},
 'Goetze':          {'version': ['gold'],  	'playerId': '192318'},
 'Castro':          {'version': ['gold'],  	'playerId': '167431'},
 'Hummels':         {'version': ['gold'],  	'playerId': '178603'},
 'Oezil':           {'version': ['gold'],  	'playerId': '176635'},
 'Boateng':         {'version': ['gold'],  	'playerId': '183907'},
-'Lewandowski':     {'version': ['gold'],  	'playerId': '188545'},
+#'Lewandowski':     {'version': ['gold'],  	'playerId': '188545'},
 'Vertonghen':      {'version': ['gold'],  	'playerId': '172871'},
 'Bailly':          {'version': ['gold'],  	'playerId': '225508'},
 'Jesus':           {'version': ['gold'],  	'playerId': '230666'},
@@ -291,16 +301,13 @@ playerDict = {
 'James Rodrigues': {'version': ['gold'],  	'playerId': '198710'},
 'Petr Cech':       {'version': ['gold'],  	'playerId': '48940'},
 'Isco':            {'version': ['gold'],  	'playerId': '197781'},
-'Sneijder':        {'version': ['gold'],  	'playerId': '139869'},
-'Mammana':         {'version': ['gold'],  	'playerId': '221551'},
 'Fabregas':        {'version': ['gold'],  	'playerId': '162895'},
 'Alderweiled':     {'version': ['gold'],  	'playerId': '184087'},
-'Florentin Pgba':  {'version': ['gold'],  	'playerId': '198688'},
+#'Florentin Pgba':  {'version': ['gold'],  	'playerId': '198688'},
 'Pepe':		   {'version': ['gold'],  	'playerId': '120533'},
 'Gaitan':          {'version': ['gold'],  	'playerId': '184144'},
 'Lacazette': 	   {'version': ['gold'],  	'playerId': '193301'},
-'Kaka':		   {'version': ['gold'],  	'playerId': '138449'},
-'Ibarguen': 	   {'version': ['gold'],  	'playerId': '225356'},
+#'Ibarguen': 	   {'version': ['gold'],  	'playerId': '225356'},
 'Modric': 	   {'version': ['gold'],  	'playerId': '177003'},
 'Rakitic': 	   {'version': ['gold'],  	'playerId': '168651'},
 'Subasic': 	   {'version': ['gold'],  	'playerId': '192593'},
@@ -310,28 +317,33 @@ playerDict = {
 'Poulsen': 	   {'version': ['gold'],  	'playerId': '207791'},
 'Schmeichel': 	   {'version': ['gold'],  	'playerId': '163587'},
 'Delaney': 	   {'version': ['gold'],  	'playerId': '193283'},
-'Messi': 	   {'version': ['gold'],  	'playerId': '158023'},
-'Neymar': 	   {'version': ['gold'],  	'playerId': '190871'},
-'Bale': 	   {'version': ['gold'],  	'playerId': '173731'}
+#'Messi': 	   {'version': ['gold'],  	'playerId': '158023'},
+#'Neymar': 	   {'version': ['gold'],  	'playerId': '190871'},
+#'Bale': 	   {'version': ['gold'],  	'playerId': '173731'}
 }
 
 def futPrice(id):
-	r = requests.get('http://www.futbin.com/18/playerPrices?player='+id+'&all_versions=&_=1')
+	r = requests.get('http://www.futbin.com/19/playerPrices?player='+id+'&all_versions=&_=1')
 	output = r.text
 	#print(output)
+	#print(id)
 	split = output.split(':{"')
 	splitXbox = split[3].split('","')
 	for s in splitXbox:
 		splitS = s.split('":"')
-		value = splitS[1].replace(',', '')
+		try:		
+			value = splitS[1].replace(',', '')
+		except ValueError:
+			print(id)
+			print(output)
 		value = value.replace('"}"ps"', '')
 		if splitS[0] == 'LCPrice2':
 			#print(value)
 			return value
 def futPriceMin(id):
-	r = requests.get('http://www.futbin.com/18/playerPrices?player='+id+'&all_versions=&_=1')
+	r = requests.get('http://www.futbin.com/19/playerPrices?player='+id+'&all_versions=&_=1')
 	output = r.text
-	#print(output)
+	print(output)
 	split = output.split(':{"')
 	splitXbox = split[3].split('","')
 	for s in splitXbox:
@@ -379,8 +391,8 @@ def searchLoop():
 				for version in playerDict[key]['version']:
 					buyAndSell(key, playerDict[key]['playerId'], version, 0)
 					makeSleep()
-					buyAndSell(key, playerDict[key]['playerId'], version, 1)
-					makeSleep()
+					#buyAndSell(key, playerDict[key]['playerId'], version, 1)
+					#makeSleep()
 					buyAndSell(key, playerDict[key]['playerId'], version, 2)
 					makeSleep()
 
@@ -409,11 +421,12 @@ def getGewinnFromFile():
 
 def mmogaPrice():
 	global gewinn
-	if gewinn >11000:
+	if gewinn > 3000 and sellOnMMOGA == True:
 		searchMmoga = MMOGA()
 		searchMmoga.makeFirstStep()
 		searchMmoga.writeMMOGAcookies()
 		searchMmoga.getPriceAndAmount()
+		xboxPrice = searchMmoga.xboxPrice
 		if searchMmoga.amount > 1:
 			searchMmoga.makeNextSteps()
 			test = searchMmoga.getPlayerDetails()
@@ -447,9 +460,11 @@ def mmogaPrice():
 			else:
 				print('KaufMMogaCard: ' + str(kaufMmogaCard))
 			del searchMmoga
+		return xboxPrice
+	return 'nicht gesucht'
 getGewinnFromFile()
 iconPrice = 155000
-rarePrice = 10000
+rarePrice = 4500
 for a in range(0,20):
 	for s in range(0,10):
 		deleteTradepile()
