@@ -7,7 +7,10 @@ CRED = '\r\033[91m'
 CYELLOW = '\r\033[33m'
 CEND = '\033[0m'
 
+
 class MMOGA:
+	console 	= 'Xbox One'
+	#console = 'PC'
 	MMOGAsid	= ''
 	mmddd		= ''
 	xboxPrice	= 0
@@ -15,8 +18,8 @@ class MMOGA:
 	playerId	= 0
 	startBid	= 0
 	tradeId		= 0
-	mid		= 0
-	key		= 0
+	mid			= 0
+	key			= 0
 	expires		= 0
 	futWebExpires   = 0
 
@@ -47,15 +50,16 @@ class MMOGA:
 	'Content-Type': 'application/x-www-form-urlencoded'
 	}
 
-	def beepingsound():
-		beep = lambda x: os.system("echo -n '\a';sleep 0.2;" * x)
-		beep(3)
+	def beepingsound(self):
+		duration = 1  # second
+		freq = 440  # Hz
+		os.system('play --no-show-progress --null --channels 1 synth %s sine %f' % (duration, freq))
 
 	def getPriceAndAmount(self):
 		if self.step1Answer == '':
 			print('\r'+' should not happen -> getPriceAndAmount')
 			return
-		split = self.step1Answer.text.split('<p class="futSellT">Fifa 18 Coins - Xbox One</p>')
+		split = self.step1Answer.text.split('<p class="futSellT">Fifa 19 Coins - '+self.console+'</p>')
 		splitXbox = split[1].split('<p>')		
 		splitEuro = splitXbox[1].split('&nbsp;&euro')
 		splitEuro = splitEuro[0].split('100k: ')
@@ -66,7 +70,7 @@ class MMOGA:
 		splitBedarf = splitXbox[1].split('<br>Bedarf: ')
 		splitBedarf = splitBedarf[1].split('k</p>')
 		self.amount = int(splitBedarf[0])
-		#print( str(self.xboxPrice) + " " + str(self.amount))
+		#print('\r'+ str(self.xboxPrice) + " " + str(self.amount))
 
 	def makeFirstStep(self):
 		answer = requests.get(self.url)
@@ -74,19 +78,24 @@ class MMOGA:
 			self.step1Answer = answer
 		else:
 			print('\r'+'something wrong')
+			self.beepingsound()
+			time.sleep(50)
 
 
 	def writeMMOGAcookies(self):
 		if self.step1Answer == '':
 			print('\r'+'no coins')
-		#	return
-		self.MMOGAsid		= self.step1Answer.cookies['MMOGAsid']
-		self.mmddd		= self.step1Answer.cookies['mmddd']
-		self.mmogaSession.cookies.set('MMOGAsid', self.MMOGAsid)
-		self.mmogaSession.cookies.set('mmddd'   , self.mmddd)
-		self.mmogaSession.cookies.set('cookie_test', 'please_accept_for_session')
+		else:
+			#	return
+			self.MMOGAsid		= self.step1Answer.cookies['MMOGAsid']
+			self.mmddd		= self.step1Answer.cookies['mmddd']
+			self.mmogaSession.cookies.set('MMOGAsid', self.MMOGAsid)
+			self.mmogaSession.cookies.set('mmddd'   , self.mmddd)
+			self.mmogaSession.cookies.set('cookie_test', 'please_accept_for_session')
 
 	def makeNextSteps(self):
+		if self.console is 'PC':
+			self.step2 = 'step=2&platform=PC'
 		if self.amount == 0:
 			print('\r'+ str(self.xboxPrice) + " " + str(self.amount))
 		#		return
@@ -120,6 +129,7 @@ class MMOGA:
 			return 0
 		if 'Leider' in self.step4Answer.text:
 			print(CRED + 'MMOGA: to late                   ' + CEND)
+			#print(self.step4Answer.text)
 			return 0
 		if '<div class="futSellPayL">Player ID:</div>' in self.step4Answer.text:
 			print()
@@ -129,6 +139,7 @@ class MMOGA:
 			return 0
 		## get player-id
 		print(CYELLOW +' - - - - - - MMOGA VERKAUF - - - - - - '+ CEND)
+		time.sleep(50)
 		#print(self.step4Answer.text)
 		mmogaPlayerId = self.step4Answer.text.split('<div class="futSellPayL">Player ID:</div>')
 		mmogaPlayerId = mmogaPlayerId[1].split('<div class="futSellPayR">')
@@ -178,3 +189,42 @@ class MMOGA:
 		self.step5 = 'step=5&id='+str(self.mid)+'&key='+str(self.key)+'&expires='+str(self.expires)+'&futwebExpires='+str(self.futWebExpires)
 		#print(self.step5)
 
+		def buyCard():
+			searchMmoga = MMOGA()
+			searchMmoga.makeFirstStep()
+			searchMmoga.writeMMOGAcookies()
+			searchMmoga.getPriceAndAmount()
+			xboxPrice = searchMmoga.xboxPrice
+
+			if searchMmoga.amount > 1:
+				searchMmoga.makeNextSteps()
+				test = searchMmoga.getPlayerDetails()
+
+
+class SELFBUY:
+	def buyCardInMmoga(self):
+		timesleep = 50
+		while (1):
+			timesleep -= 1
+
+			if timesleep is 0:
+				timesleep = 30
+				time.sleep(10)
+			searchMmoga = MMOGA()
+			# searchMmoga.beepingsound()
+			searchMmoga.makeFirstStep()
+			searchMmoga.writeMMOGAcookies()
+			searchMmoga.getPriceAndAmount()
+			xboxPrice = searchMmoga.xboxPrice
+			# time.sleep(1)
+			if searchMmoga.amount > 1:
+				print('found ' + str(searchMmoga.amount))
+				searchMmoga.beepingsound()
+				searchMmoga.makeNextSteps()
+				test = searchMmoga.getPlayerDetails()
+			else:
+				print(
+					 str(timesleep) + ' nothing - Xbox-Price: ' + str(searchMmoga.xboxPrice) + ' amount: ' + str(searchMmoga.amount) + 'k')
+			del searchMmoga
+
+SELFBUY().buyCardInMmoga()
