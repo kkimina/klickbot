@@ -21,7 +21,7 @@ coins  	  	= 0
 tradepile 	= 0
 startCoins	= 0
 os.system('clear') 
-session = fut.Core('maikfischer@hotmail.de', 'Autobaum1', 'kaiee', platform='xbox')
+session = fut.Core('xxx@hotmail.de', 'xx', 'kaiee', platform='xbox')
 
 	#item = ronaldo[0]
 	#trade_id = item['tradeId']
